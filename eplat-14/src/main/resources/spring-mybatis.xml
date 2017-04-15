@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd  
+                        http://www.springframework.org/schema/context  
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd  
+                        http://www.springframework.org/schema/mvc  
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.cn.eplat" />
+	<!-- 引入配置文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:jdbc.properties" />
+	</bean>
+	
+	<!-- 多数据源配置 -->
+	<bean id="ds_admin" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" >
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<!-- 打卡机的服务器数据库连接配置
+		 -->
+			<property name="url" value="jdbc:mysql://localhost:3306/eplat-uat?allowMultiQueries=true"></property>
+			<property name="username" value="root"></property>
+			<property name="password" value="elead2017"></property>
+		
+		<!-- 本地数据库连接配置 
+				注：参数zeroDateTimeBehavior的可选值: convertToNull, round, exception
+			<property name="url" value="jdbc:mysql://localhost:3306/eplat_sit2?allowMultiQueries=true&amp;zeroDateTimeBehavior=convertToNull"></property>
+			<property name="username" value="root"></property>
+			<property name="password" value="111111"></property>
+		-->
+		
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true"/>
+		<property name="initialSize" value="0"></property>
+		<property name="maxActive" value="20"></property>
+		<property name="maxIdle" value="20"></property>
+		<property name="minIdle" value="1"></property>
+		<property name="maxWait" value="60000"></property>
+	</bean>
+	<bean id="ds_partner" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" >
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url"
+			value="jdbc:mysql://192.168.1.225:3306/eplat-uat?allowMultiQueries=true"></property>
+		<property name="username" value="zpxtdba"></property>
+		<property name="password" value="666666"></property>
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true"/>
+		<property name="initialSize" value="0"></property>
+		<property name="maxActive" value="20"></property>
+		<property name="maxIdle" value="20"></property>
+		<property name="minIdle" value="1"></property>
+		<property name="maxWait" value="60000"></property>
+	</bean>
+	<bean id="ds_mop" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" >
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://120.77.50.190:3306/eplat-pro?allowMultiQueries=true"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="@Elead2015"></property>
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true"/>
+		<property name="initialSize" value="0"></property>
+		<property name="maxActive" value="20"></property>
+		<property name="maxIdle" value="20"></property>
+		<property name="minIdle" value="1"></property>
+		<property name="maxWait" value="60000"></property>
+	</bean>
+	<bean id="ds_access" class="org.apache.commons.dbcp.BasicDataSource" >
+        <property name="driverClassName" value="sun.jdbc.odbc.JdbcOdbcDriver" />  
+        <!-- 
+        	<property name="url" value="jdbc:odbc:DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/TempDataDpan/19.test_mdb/att2000.mdb" />
+         -->
+        <!-- 生产环境/打卡机服务器配置 
+        -->
+			<property name="url" value="jdbc:odbc:DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Program Files (x86)/ZKTECO/ZKTime5.0/att2000.mdb" />
+        
+        <!-- 本地测试环境配置 
+	        <property name="url" value="jdbc:odbc:DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:\TempDataDpan\19.test_mdb\004\att2000.mdb" />
+        -->
+        
+        <!-- <property name="username" value=""></property>
+		<property name="password" value=""></property> -->
+		
+        <property name="connectionProperties">
+            <!-- 这里如果把charSet设为gbk或gb2312时，能从Access数据库中正常取出中文字符；但是如果设为了utf-8，则取出中文字符时会出现??????乱码 -->
+            <value>charSet=gb2312</value>
+        </property>
+	</bean>
+	
+	<!-- 动态配置数据源 -->
+	<bean id="dataSource" class="com.cn.eplat.datasource.DynamicDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="ds_mop" key="ds_mop"></entry>
+				<entry value-ref="ds_admin" key="ds_admin"></entry>
+				<entry value-ref="ds_partner" key="ds_partner"></entry>
+				<entry value-ref="ds_access" key="ds_access"></entry>
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="ds_admin"></property>      <!-- 默认使用ds_admin的数据源 -->
+	</bean>
+	
+	<!-- 
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url}" />
+		<property name="username" value="${username}" />
+		<property name="password" value="${password}" />
+		解决一段时间后（如隔一个晚上，第二天一大早就会遇到）MySQL连接丢失的问题。报错提示：HTTP Status 500 - The last packet successfully received from the server was 32,670,003 milliseconds ago
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true"/>
+		初始化连接大小
+		<property name="initialSize" value="${initialSize}"></property>
+		连接池最大数量
+		<property name="maxActive" value="${maxActive}"></property>
+		连接池最大空闲
+		<property name="maxIdle" value="${maxIdle}"></property>
+		连接池最小空闲
+		<property name="minIdle" value="${minIdle}"></property>
+		获取连接最大等待时间
+		<property name="maxWait" value="${maxWait}"></property>
+	</bean>
+	 -->
+	 
+	<!-- 
+	<bean id="dataSource2" class="org.apache.commons.dbcp.BasicDataSource" >
+        <property name="driverClassName" value="sun.jdbc.odbc.JdbcOdbcDriver" />  
+        <property name="url" value="jdbc:odbc:DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/workspace/eclipse/attend/data/attend.mdb" />
+        <property name="connectionProperties">  
+            <value>charSet=gbk</value>
+        </property>  
+	</bean>
+	 -->
+	 
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描mapping.xml文件 -->
+		<property name="mapperLocations" value="classpath*:com/cn/eplat/mapping/*.xml"></property>
+		<property name="plugins">
+		    <array>
+		      <bean class="com.github.pagehelper.PageHelper">
+		        <property name="properties">
+		          <value>
+		            dialect=mysql
+		            offsetAsPageNum=true
+		            rowBoundsWithCount=true
+		            pageSizeZero=false
+		            reasonable=true
+		            supportMethodsArguments=true
+		            returnPageInfo=always
+		          </value>
+		        </property>
+		      </bean>
+		    </array>
+		</property>
+	</bean>
+
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.cn.eplat.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 使用声明式事务
+		 transaction-manager：引用上面定义的事务管理器
+	 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>

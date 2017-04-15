@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IMachUserInfoDao">
+	
+	
+	<sql id="all_fields">
+		userid, badgenumber, name, gender, title, birthday, hiredday, street, city, state, zip, ophone, fphone
+	</sql>
+	
+	<select id="queryAllMachUserInfos" resultType="com.cn.eplat.model.MachUserInfo" >
+		select <include refid="all_fields"></include>
+		from userinfo
+	</select>
+	
+	<select id="queryMachUserInfoNumber" resultType="int" >
+		select count(userid)
+		from userinfo
+		where badgenumber is not null
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IMachCheckInOutDao">
+	
+	<sql id="select_all_fields">
+		select 
+			USERID, 
+			checktime as check_time, 
+			CHECKTYPE as check_type, 
+			VERIFYCODE as verify_code, 
+			SENSORID as sensor_id, 
+			Memoinfo as memo_info, 
+			WorkCode as work_code, 
+			SN, 
+			UserExtFmt as user_ext_fmt
+	</sql>
+	
+	<sql id="select_top_n">
+		select top 50
+	</sql>
+	
+	<sql id="select_all_fields_top100">
+		<include refid="select_top_n"></include>
+			USERID, 
+			checktime as check_time, 
+			CHECKTYPE as check_type, 
+			VERIFYCODE as verify_code, 
+			SENSORID as sensor_id, 
+			Memoinfo as memo_info, 
+			WorkCode as work_code, 
+			SN, 
+			UserExtFmt as user_ext_fmt
+	</sql>
+	
+	<sql id="select_fields_checkinout_userinfo_top100">
+		<include refid="select_top_n"></include>
+			ch.USERID, 
+			user.Badgenumber as badge_number,
+			ch.checktime as check_time, 
+			ch.CHECKTYPE as check_type, 
+			ch.VERIFYCODE as verify_code, 
+			ch.SENSORID as sensor_id, 
+			ch.Memoinfo as memo_info, 
+			ch.WorkCode as work_code, 
+			ch.SN, 
+			ch.UserExtFmt as user_ext_fmt
+	</sql>
+	
+	<sql id="select_fields_checkinout_no_badgenumber_top100">
+		<include refid="select_top_n"></include>
+			ch.USERID, 
+			ch.checktime as check_time, 
+			ch.CHECKTYPE as check_type, 
+			ch.VERIFYCODE as verify_code, 
+			ch.SENSORID as sensor_id, 
+			ch.Memoinfo as memo_info, 
+			ch.WorkCode as work_code, 
+			ch.SN, 
+			ch.UserExtFmt as user_ext_fmt
+	</sql>
+	
+	<sql id="all_fields_for_mach_checkinout_userinfo">
+		ck.USERID, 
+		ui.Badgenumber as badge_number,
+		ck.checktime as check_time, 
+		ck.CHECKTYPE as check_type, 
+		ck.VERIFYCODE as verify_code, 
+		ck.SENSORID as sensor_id, 
+		ck.Memoinfo as memo_info, 
+		ck.WorkCode as work_code, 
+		ck.SN, 
+		ck.UserExtFmt as user_ext_fmt
+	</sql>
+	
+	<select id="queryMachCheckInOutById" parameterType="int" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_all_fields"></include>
+		from checkinout
+		where userid = #{id}
+	</select>
+	
+	<select id="queryMachCheckInOutByCheckTime" parameterType="java.util.Date" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_all_fields" />
+		from checkinout
+		where checktime &gt;= #{ct}
+	</select>
+	
+	<select id="queryMachCheckInOutByCheckTimeTop100" parameterType="java.util.Date" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_all_fields_top100" />
+		from checkinout
+		where 
+			checktime is not null 
+			and checktime &gt; #{ct}
+		order by checktime
+	</select>
+	
+	<select id="queryMachCheckInOutAndUserInfoByCheckTimeTop100" parameterType="java.util.Date" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_fields_checkinout_userinfo_top100" />
+		from checkinout ch, userinfo user
+		where 
+			ch.checktime is not null 
+			and ch.checktime &gt; #{ct}
+			and ch.userid = user.userid
+		order by ch.checktime
+	</select>
+	
+	<select id="queryMachCheckInOutAndUserInfoByCheckTimeExcludeSomeUseridsTop100" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_fields_checkinout_userinfo_top100" />
+		from checkinout ch, userinfo user
+		where 
+			(
+				ch.checktime is not null 
+				and ch.checktime &gt; #{ct}
+				and ch.userid = user.userid
+			)
+			<if test="uids != null and uids.size() > 0  ">
+			or 
+			(
+				ch.checktime is not null 
+				and ch.checktime = #{ct}
+				and ch.userid = user.userid
+				and ch.userid not in (
+					<foreach collection="uids" index="index" item="item" separator="," >
+						#{item}
+					</foreach>
+				)
+			)
+			</if>
+		order by ch.checktime
+	</select>
+	
+	<select id="queryMachCheckInOutAndUserInfoByCheckTimeExcludeSomeUseridsTop100ByMachSn" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_fields_checkinout_userinfo_top100" />
+		from checkinout ch, userinfo user
+		where 
+			(
+				sn = #{sn}
+				and ch.checktime is not null 
+				and ch.checktime &gt; #{ct}
+				and ch.userid = user.userid
+			)
+			<if test="uids != null and uids.size() > 0  ">
+			or 
+			(
+				sn = #{sn}
+				and ch.checktime is not null 
+				and ch.checktime = #{ct}
+				and ch.userid = user.userid
+				and ch.userid not in (
+					<foreach collection="uids" index="index" item="item" separator="," >
+						#{item}
+					</foreach>
+				)
+			)
+			</if>
+		order by ch.checktime
+	</select>
+	
+	<select id="queryMachCheckInOutByCheckTimeExcludeSomeUseridsTop100ByMachSn" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_fields_checkinout_no_badgenumber_top100" />
+		from checkinout ch
+		where 
+			(
+				sn = #{sn}
+				and ch.checktime is not null 
+				and ch.checktime &gt; #{ct}
+			)
+			<if test="uids != null and uids.size() > 0  ">
+			or 
+			(
+				sn = #{sn}
+				and ch.checktime is not null 
+				and ch.checktime = #{ct}
+				and ch.userid not in (
+					<foreach collection="uids" index="index" item="item" separator="," >
+						#{item}
+					</foreach>
+				)
+			)
+			</if>
+		order by ch.checktime
+	</select>
+	
+	<select id="queryMachCheckInOutAndUserInfoTop100" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_fields_checkinout_userinfo_top100" />
+		from checkinout ch, userinfo user
+		where 
+			ch.checktime is not null 
+			and ch.userid = user.userid
+		order by ch.checktime
+	</select>
+	
+	<select id="queryMachCheckInOutAndUserInfoTop100ByMachSn" parameterType="string" resultType="com.cn.eplat.model.MachCheckInOut" >
+		<include refid="select_fields_checkinout_userinfo_top100" />
+		from checkinout ch, userinfo user
+		where 
+			sn = #{sn}
+			and ch.checktime is not null 
+			and ch.userid = user.userid
+		order by ch.checktime
+	</select>
+	
+	<select id="queryAllMachCheckInOut" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select
+			<include refid="all_fields_for_mach_checkinout_userinfo" />
+		from checkinout ck, userinfo ui
+		where 
+			ck.checktime is not null and
+			ck.userid = ui.userid
+	</select>
+	
+	<!-- 
+	<select id="queryPPPById" parameterType="int" resultType="com.cn.eplat.model.PPP" >
+		select name, uuu
+		from ppp
+		where id = #{id}
+	</select>
+	 -->
+	 
+	
+	<sql id="all_fields_mysql">
+		id, userid, badge_number, check_time, check_type, verify_code, sensor_id, memo_info, work_code, sn, user_ext_fmt, push_status, last_push_time, push_count
+	</sql>
+	
+	<sql id="all_fields_except_id">
+		userid, badge_number, check_time, check_type, verify_code, sensor_id, memo_info, work_code, sn, user_ext_fmt, push_status, last_push_time, push_count
+	</sql>
+	
+	<sql id="insert_all_fields_except_id">
+		userid, badge_number, check_time, check_type, verify_code, sensor_id, memo_info, work_code, sn, user_ext_fmt, push_status, last_push_time, push_count
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp">
+		#{userid}, #{badge_number}, #{check_time}, #{check_type}, #{verify_code}, #{sensor_id}, #{memo_info}, #{work_code}, #{sn}, #{user_ext_fmt}, #{push_status}, #{last_push_time}, #{push_count} 
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp_item">
+		#{item.userid}, #{item.badge_number}, #{item.check_time}, #{item.check_type}, #{item.verify_code}, #{item.sensor_id}, #{item.memo_info}, #{item.work_code}, #{item.sn}, 
+		#{item.user_ext_fmt}, #{item.push_status}, #{item.last_push_time}, #{item.push_count} 
+	</sql>
+	
+	<insert id="batchInsertMachCheckInOut" parameterType="com.cn.eplat.model.MachCheckInOut" >
+		insert into mach_checkinout (
+			<include refid="insert_all_fields_except_id"></include>
+		)
+		values 
+		<foreach collection="list" item="item" index="index" separator="," >
+			(
+				<include refid="all_fields_except_id_sharp_item"></include>
+			)
+		</foreach>
+	</insert>
+	
+	<insert id="batchInsertMachCheckInOutWithErrorCheckTime" parameterType="com.cn.eplat.model.MachCheckInOut" >
+		insert into mach_chkio_error (
+			<include refid="insert_all_fields_except_id"></include>
+		)
+		values 
+		<foreach collection="list" item="item" index="index" separator="," >
+			(
+				<include refid="all_fields_except_id_sharp_item"></include>
+			)
+		</foreach>
+	</insert>
+	
+	<sql id="all_fields_except_id_where_and_if">
+		<if test="userid != null ">
+			and userid = #{userid}
+		</if>
+		<if test="badge_number != null and badge_number != '' ">
+			and badge_number = #{badge_number}
+		</if>
+		<if test="check_time != null ">
+			and check_time = #{check_time}
+		</if>
+		<if test="check_type != null and check_type != '' ">
+			and check_type = #{check_type}
+		</if>
+		<if test="verify_code != null ">
+			and verify_code = #{verify_code}
+		</if>
+		<if test="sensor_id != null and sensor_id != '' ">
+			and sensor_id = #{sensor_id}
+		</if>
+		<if test="memo_info != null and memo_info != '' ">
+			and memo_info = #{memo_info}
+		</if>
+		<if test="work_code != null and work_code != '' ">
+			and work_code = #{work_code}
+		</if>
+		<if test="sn != null and sn != '' ">
+			and sn = #{sn}
+		</if>
+		<if test="user_ext_fmt != null ">
+			and user_ext_fmt = #{user_ext_fmt}
+		</if>
+		<if test="push_status != null and push_status != '' ">
+			and push_status = #{push_status}
+		</if>
+		<if test="last_push_time != null ">
+			and last_push_time = #{last_push_time}
+		</if>
+		<if test="push_count != null ">
+			and push_count = #{push_count}
+		</if>
+	</sql>
+	
+	<select id="queryMachCheckInOutByCriteria" parameterType="com.cn.eplat.model.MachCheckInOut" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select 
+			<include refid="all_fields_mysql"></include>
+		from mach_checkinout
+		where 1=1
+		<include refid="all_fields_except_id_where_and_if"></include>
+	</select>
+	
+	<select id="queryMachCheckInOutByNormalAndSpecialCriteria" parameterType="com.cn.eplat.model.MachCheckInOut" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select 
+			<include refid="all_fields_mysql"></include>
+		from mach_checkinout
+		where push_status like '%failed%'
+		<include refid="all_fields_except_id_where_and_if"></include>
+	</select>
+	
+	<sql id="upd_all_fields_except_id_with_item_if">
+		<if test="item.userid != null ">
+			userid = #{item.userid},
+		</if>
+		<if test="item.badge_number != null ">
+			badge_number = #{item.badge_number},
+		</if>
+		<if test="item.check_time != null ">
+			check_time = #{item.check_time},
+		</if>
+		<if test="item.check_type != null and item.check_type != '' ">
+			check_type = #{item.check_type},
+		</if>
+		<if test="item.verify_code != null ">
+			verify_code = #{item.verify_code},
+		</if>
+		<if test="item.sensor_id != null and item.sensor_id != '' ">
+			sensor_id = #{item.sensor_id},
+		</if>
+		<if test="item.memo_info != null and item.memo_info != '' ">
+			memo_info = #{item.memo_info},
+		</if>
+		<if test="item.work_code != null and item.work_code != '' ">
+			work_code = #{item.work_code},
+		</if>
+		<if test="item.sn != null and item.sn != '' ">
+			sn = #{item.sn},
+		</if>
+		<if test="item.user_ext_fmt != null ">
+			user_ext_fmt = #{item.user_ext_fmt},
+		</if>
+		<if test="item.push_status != null and item.push_status != '' ">
+			push_status = #{item.push_status},
+		</if>
+		<if test="item.last_push_time != null ">
+			last_push_time = #{item.last_push_time},
+		</if>
+		<if test="item.push_count != null ">
+			push_count = #{item.push_count},
+		</if>
+	</sql>
+	
+	<update id="batchUpdateMachCheckInOutById" parameterType="com.cn.eplat.model.MachCheckInOut" >
+		<foreach collection="list" item="item" index="index" open="" close="" separator=";" >
+			update mach_checkinout
+			<set>
+				<include refid="upd_all_fields_except_id_with_item_if"></include>
+			</set>
+			where id = ${item.id}
+		</foreach>
+	</update>
+	
+	<select id="queryMachCheckInOutWithMaxId" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select
+			<include refid="all_fields_mysql"></include>
+		from mach_checkinout
+		where
+			id = (
+				select max(id) from mach_checkinout
+			)
+	</select>
+	
+	<select id="queryMachCheckInOutWithMaxCheckTime" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select
+			<include refid="all_fields_mysql"></include>
+		from mach_checkinout
+		where
+			check_time = (
+				select max(check_time) from mach_checkinout
+			)
+	</select>
+	
+	<select id="queryMachCheckInOutWithMaxCheckTimeByMachSn" parameterType="string" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select
+			<include refid="all_fields_mysql"></include>
+		from mach_checkinout
+		where
+			sn = #{sn}
+			and check_time = (
+				select max(check_time) from mach_checkinout
+				where sn = #{sn}
+			)
+	</select>
+	
+	<select id="queryLatestCheckTime" resultType="java.util.Date" >
+		select max(check_time)
+		from mach_checkinout
+	</select>
+	
+	<select id="queryMissedMachCheckInOutsWithGivenDatas" parameterType="string" resultType="com.cn.eplat.model.MachCheckInOut" >
+		select <include refid="all_fields_mysql"></include>
+		from mach_checkinout
+		where 
+	</select>
+	
+	<sql id="missed_mcios_fields_from_A">
+		A.userid, 
+		A.badgenumber badge_number,
+		A.checktime check_time,
+		A.checktype check_type,
+		A.verifycode verify_code,
+		A.sensorid sensor_id,
+		A.memoinfo memo_info,
+		A.workcode work_code,
+		A.sn,
+		A.userextfmt user_ext_fmt
+	</sql>
+	
+	<select id="queryMissedMachCheckInOutsByCompareAccessAndMySQLDatas" resultType="com.cn.eplat.model.MachCheckInOut" >
+		SELECT <include refid="missed_mcios_fields_from_A"></include>
+		FROM 
+			mach_chkio_copy A LEFT JOIN mach_checkinout B
+			ON ( 
+				A.userid = B.userid
+				AND A.checktime = B.check_time
+			)
+		WHERE
+			B.userid IS NULL
+			OR B.check_time IS NULL
+	</select>
+	
+	<sql id="insert_mach_chkio_copy_fields">
+		userid, badgenumber, checktime, checktype, verifycode, sensorid, memoinfo, workcode, sn, userextfmt
+	</sql>
+	
+	<sql id="insert_mach_chkio_copy_values_fields">
+		#{item.userid}, 
+		#{item.badge_number}, 
+		#{item.check_time}, 
+		#{item.check_type}, 
+		#{item.verify_code}, 
+		#{item.sensor_id}, 
+		#{item.memo_info}, 
+		#{item.work_code}, 
+		#{item.sn}, 
+		#{item.user_ext_fmt}
+	</sql>
+	
+	<insert id="batchInsertAllAccessCheckinoutsToMySQLMachCheckInOutCopy" parameterType="com.cn.eplat.model.MachCheckInOut" >
+		insert into mach_chkio_copy (
+			<include refid="insert_mach_chkio_copy_fields"></include>
+		) values 
+		<foreach collection="list" item="item" index="index" separator="," >
+			(
+				<include refid="insert_mach_chkio_copy_values_fields"></include>
+			)
+		</foreach>
+	</insert>
+	
+	<delete id="deleteAllAccessCheckInOutsCopyInMySQL">
+		delete from mach_chkio_copy
+	</delete>
+	
+	
+	
+</mapper>

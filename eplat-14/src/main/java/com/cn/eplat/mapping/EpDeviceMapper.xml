@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IEpDeviceDao">
+	
+	<select id="queryDeviceBoundCount" parameterType="com.cn.eplat.model.EpDevice" resultType="int" >
+		select count(*)
+		from ep_device
+		where ep_uid = #{ep_uid}
+			and bind_status = true
+	</select>
+	
+	<select id="queryEpDeviceById" parameterType="int" resultType="com.cn.eplat.model.EpDevice" >
+		select id, name, imei, udid, ep_uid, bind_start_time, bind_count, bind_valid_time, bind_status, platform, max_bound_times, last_bound_time, last_unbound_time
+		from ep_device
+		where id = #{id}
+	</select>
+	
+	<insert id="insertEpDevice" parameterType="com.cn.eplat.model.EpDevice" useGeneratedKeys="true" keyProperty="id" >
+		insert into ep_device (name, imei, udid, ep_uid, bind_start_time, bind_count, bind_valid_time, bind_status, platform, max_bound_times, last_bound_time, last_unbound_time)
+		value (
+			#{name},
+			#{imei},
+			#{udid},
+			#{ep_uid},
+			#{bind_start_time},
+			#{bind_count},
+			#{bind_valid_time},
+			#{bind_status},
+			#{platform},
+			#{max_bound_times},
+			#{last_bound_time},
+			#{last_unbound_time}
+		)
+	</insert>
+	
+	<update id="updateEpDeviceById" parameterType="com.cn.eplat.model.EpDevice" >
+		update ep_device
+		<set>
+			<if test="name != null and name != '' ">
+				name = #{name},
+			</if>
+			<if test="imei != null and imei != '' ">
+				imei = #{imei},
+			</if>
+			<if test="udid != null and udid != '' ">
+				udid = #{udid},
+			</if>
+			<if test="ep_uid != null and ep_uid > 0 ">
+				ep_uid = #{ep_uid},
+			</if>
+			<if test="bind_start_time != null ">
+				bind_start_time = #{bind_start_time},
+			</if>
+			<if test="bind_count != null ">
+				bind_count = #{bind_count},
+			</if>
+			<if test="bind_valid_time != null ">
+				bind_valid_time = #{bind_valid_time},
+			</if>
+			<if test="bind_status != null ">
+				bind_status = #{bind_status},
+			</if>
+			<if test="platform != null and platform != '' ">
+				platform = #{platform},
+			</if>
+			<if test="max_bound_times != null ">
+				max_bound_times = #{max_bound_times},
+			</if>
+			<if test="last_bound_time != null ">
+				last_bound_time = #{last_bound_time},
+			</if>
+			<if test="last_unbound_time != null ">
+				last_unbound_time = #{last_unbound_time},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<update id="updateEpDeviceByIdIncludingNull" parameterType="com.cn.eplat.model.EpDevice" >
+		update ep_device
+		set 
+			name = #{name},
+			imei = #{imei},
+			udid = #{udid},
+			ep_uid = #{ep_uid},
+			bind_start_time = #{bind_start_time},
+			bind_count = #{bind_count},
+			bind_valid_time = #{bind_valid_time},
+			bind_status = #{bind_status},
+			platform = #{platform},
+			max_bound_times = #{max_bound_times},
+			last_bound_time = #{last_bound_time},
+			last_unbound_time = #{last_unbound_time}
+		where 
+			id = #{id}
+	</update>
+	
+	<select id="queryEpDeviceByCriterion" parameterType="com.cn.eplat.model.EpDevice" resultType="com.cn.eplat.model.EpDevice" >
+		select id, name, imei, udid, ep_uid, bind_start_time, bind_count, bind_valid_time, bind_status, platform, max_bound_times, last_bound_time, last_unbound_time
+		from ep_device
+		where 1=1
+			<if test="name != null and name != '' ">
+				and name = #{name}
+			</if>
+			<if test="imei != null and imei != '' ">
+				and imei = #{imei}
+			</if>
+			<if test="udid != null and udid != '' ">
+				and udid = #{udid}
+			</if>
+			<if test="ep_uid != null and ep_uid > 0 ">
+				and ep_uid = #{ep_uid}
+			</if>
+			<if test="bind_start_time != null ">
+				and bind_start_time = #{bind_start_time}
+			</if>
+			<if test="bind_count != null ">
+				and bind_count = #{bind_count}
+			</if>
+			<if test="bind_valid_time != null ">
+				and bind_valid_time = #{bind_valid_time}
+			</if>
+			<if test="bind_status != null ">
+				and bind_status = #{bind_status}
+			</if>
+			<if test="platform != null and platform != '' ">
+				and platform = #{platform}
+			</if>
+			<if test="max_bound_times != null ">
+				and max_bound_times = #{max_bound_times}
+			</if>
+			<if test="last_bound_time != null ">
+				and last_bound_time = #{last_bound_time}
+			</if>
+			<if test="last_unbound_time != null ">
+				and last_unbound_time = #{last_unbound_time}
+			</if>
+	</select>
+	
+</mapper>

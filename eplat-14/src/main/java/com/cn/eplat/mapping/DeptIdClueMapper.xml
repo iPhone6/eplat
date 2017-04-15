@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IDeptIdClueDao">
+	
+	<insert id="insertOneDeptIdClue" parameterType="com.cn.eplat.model.DeptIdClue" useGeneratedKeys="true" keyProperty="id" >
+		insert into dept_id_clue(dept_id_clue, level_count, company_name)
+		value(
+			#{dept_id_clue},
+			#{level_count},
+			#{company_name}
+		)
+	</insert>
+	
+	<select id="queryAllDeptIdClueByDeptIdIncluded" parameterType="int" resultType="com.cn.eplat.model.DeptIdClue" >
+		select id, dept_id_clue, level_count, company_name
+		from dept_id_clue
+		where dept_id_clue LIKE CONCAT('%-', #{dept_id}, '-%')
+	</select>
+	
+	<delete id="deleteDeptIdClueByRootDid" parameterType="int" >
+		delete from dept_id_clue
+		where dept_id_clue like concat('-', #{root_did}, '-%')
+	</delete>
+	
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IAttenExceptionDao">
+	<insert id="insertAttenExceptions"  useGeneratedKeys="true" >
+			insert into atten_exception
+			(ep_uid,date,on_time,off_time)
+			values
+			<foreach collection="list" item="item" index="index"  separator=","  >
+			(#{item.ep_uid},#{item.date},#{item.on_time},#{item.off_time})
+			</foreach> 
+	</insert>
+	
+	<select id="getLastTimeByUid" resultType="java.util.Date">
+		select max(date) from atten_exception where ep_uid = #{uid}
+	</select>
+	
+	<select id="getAllAttenExceptionsByUid" resultType="map">
+		select date,on_time,off_time from atten_exception where ep_uid = #{uid} and has_handled = false
+	</select>
+	
+	<select id="getAllHandledAttenExceptionsByUid" resultType="map">
+		select date,on_time,off_time from atten_exception where ep_uid = #{uid} and has_handled = true
+	</select>
+	
+	<delete id="deleteAttenExceptionByUidAndDate">
+		delete from atten_exception where ep_uid = #{uid} and date = #{date}
+	</delete>
+</mapper>

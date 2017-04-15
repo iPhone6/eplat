@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IBindHistoryDao">
+	
+	<insert id="insertBindHistory" parameterType="com.cn.eplat.model.BindHistory" useGeneratedKeys="true" keyProperty="id" >
+		insert into bind_history (ep_uid, device_id, type, time, which_round_same, which_round_diff)
+		value (
+			#{ep_uid},
+			#{device_id},
+			#{type},
+			#{time},
+			#{which_round_same},
+			#{which_round_diff}
+		)
+	</insert>
+	
+	<select id="queryBindHistoryById" parameterType="int" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		where id = #{id}
+	</select>
+	
+	<update id="updateBindHistoryById" parameterType="com.cn.eplat.model.BindHistory" >
+		update bind_history
+		<set>
+			<if test="ep_uid != null ">
+				ep_uid = #{ep_uid},
+			</if>
+			<if test="device_id != null ">
+				device_id = #{device_id},
+			</if>
+			<if test="type != null and type != '' ">
+				type = #{type},
+			</if>
+			<if test="time != null ">
+				time = #{time},
+			</if>
+			<if test="which_round_same != null ">
+				which_round_same = #{which_round_same},
+			</if>
+			<if test="which_round_diff != null ">
+				which_round_diff = #{which_round_diff},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<select id="queryBindHistoryByCriterion" parameterType="com.cn.eplat.model.BindHistory" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		<where>
+			<if test="ep_uid != null ">
+				and ep_uid = #{ep_uid}
+			</if>
+			<if test="device_id != null ">
+				and device_id = #{device_id}
+			</if>
+			<if test="type != null and type != '' ">
+				and type = #{type}
+			</if>
+			<if test="time != null ">
+				and time = #{time}
+			</if>
+			<if test="which_round_same != null ">
+				and which_round_same = #{which_round_same}
+			</if>
+			<if test="which_round_diff != null ">
+				and which_round_diff = #{which_round_diff}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBindHistoryByCriterionOrderByTime" parameterType="com.cn.eplat.model.BindHistory" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		<where>
+			time is not null
+			and device_id is not null
+			<if test="ep_uid != null ">
+				and ep_uid = #{ep_uid}
+			</if>
+			<if test="device_id != null ">
+				and device_id = #{device_id}
+			</if>
+			<if test="type != null and type != '' ">
+				and type = #{type}
+			</if>
+			<if test="time != null ">
+				and time = #{time}
+			</if>
+			<if test="which_round_same != null ">
+				and which_round_same = #{which_round_same}
+			</if>
+			<if test="which_round_diff != null ">
+				and which_round_diff = #{which_round_diff}
+			</if>
+		</where>
+		order by time
+	</select>
+	
+	<select id="queryBindHistoryByCriterionValidOrderByTime" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		<where>
+			time is not null
+			and device_id is not null
+			and time &gt;= #{start}
+			and time &lt;= date_add(#{start}, interval #{range} day)
+			<if test="ep_uid != null ">
+				and ep_uid = #{0.ep_uid}
+			</if>
+			<if test="device_id != null ">
+				and device_id = #{device_id}
+			</if>
+			<if test="type != null and type != '' ">
+				and type = #{type}
+			</if>
+			<if test="time != null ">
+				and time = #{time}
+			</if>
+			<if test="which_round_same != null ">
+				and which_round_same = #{which_round_same}
+			</if>
+			<if test="which_round_diff != null ">
+				and which_round_diff = #{which_round_diff}
+			</if>
+		</where>
+		order by time
+	</select>
+	
+	<select id="queryBindHistoryByCriterionValidOrderByTimeV2" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		<where>
+			time is not null
+			and device_id is not null
+			and time &gt;= #{start}
+			and time &lt;= date_add(#{start}, interval #{range} day)
+			and ep_uid = #{bh.ep_uid}
+		</where>
+		order by time
+	</select>
+	
+	<select id="testQueryMultiParams" resultType="com.cn.eplat.model.BindHistory" >
+		select * from bind_history
+		where ep_uid = #{bh.ep_uid}
+			and device_id = #{did}
+	</select>
+	
+	<select id="queryLastBindHistoryByEpUid" parameterType="int" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		where ep_uid = #{ep_uid}
+			and time is not null
+		order by time desc
+		limit 1
+	</select>
+	
+	<select id="queryLastBindHistoryValidByEpUid" resultType="com.cn.eplat.model.BindHistory" >
+		select id, ep_uid, device_id, type, time, which_round_same, which_round_diff
+		from bind_history
+		where ep_uid = #{uid}
+			and time is not null
+			and time &gt;= #{start}
+			and time &lt;= date_add(#{start}, interval #{range} day)
+		order by time desc
+		limit 0,1
+	</select>
+	
+</mapper>

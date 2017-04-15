@@ -1,0 +1,762 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IEpUserDao">
+
+	<select id="queryEpUserByCode" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select 
+			u.id id, 
+			u.code code, 
+			u.name name, 
+			u.pwd pwd, 
+			u.origin_pwd origin_pwd,
+			u.email email,
+			u.mima mima, 
+			u.em_uid em_uid,
+			u.role_id role_id,
+			r.name role_name
+		from ep_user u left join ep_role r
+			on u.role_id = r.id
+		where 
+			u.code = #{code}
+	</select>
+	
+	<select id="queryEpUserByMobileNum" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select 
+			u.id id, 
+			u.code code, 
+			u.name name, 
+			u.pwd pwd, 
+			u.origin_pwd origin_pwd,
+			u.email email,
+			u.work_no work_no,
+			u.mima mima, 
+			u.em_uid em_uid,
+			u.role_id role_id,
+			r.name role_name
+		from ep_user u left join ep_role r
+			on u.role_id = r.id
+		where 
+			u.mobile_phone = #{mobilePhone}
+	</select>
+	
+	<select id="queryEpUserByEmail" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select 
+			u.id id, 
+			u.code code, 
+			u.name name, 
+			u.pwd pwd, 
+			u.origin_pwd origin_pwd,
+			u.email email,
+			u.work_no work_no,
+			u.mima mima, 
+			u.em_uid em_uid,
+			u.role_id role_id,
+			r.name role_name
+		from ep_user u left join ep_role r
+			on u.role_id = r.id
+		where 
+			u.email = #{email}
+	</select>
+	
+	<select id="queryEpUserByWorkNum" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select 
+			u.id id, 
+			u.code code, 
+			u.name name, 
+			u.pwd pwd, 
+			u.origin_pwd origin_pwd,
+			u.email email,
+			u.work_no work_no,
+			u.mima mima, 
+			u.em_uid em_uid,
+			u.role_id role_id,
+			u.type type,
+			r.name role_name
+		from ep_user u left join ep_role r
+			on u.role_id = r.id
+		where 
+			u.work_no = #{workNum}
+	</select>
+	
+	<select id="querySimpleEpUserByWorkNum" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select 
+			name, 
+			email,
+			work_no,
+			mobile_phone,
+			dept_name,
+			project_name
+		from ep_user 
+		where 
+			work_no = #{workNum}
+	</select>
+	
+	<select id="queryVerCodeEpUserByEmail" resultType="com.cn.eplat.model.EpUser">
+		select 
+			ver_code,vercode_time,em_uid,id
+		from ep_user 
+		where 
+			email = #{email}
+	</select>
+	
+	<!-- 仅仅用来批量修改数据库里的密码  the start -->
+	<select id="queryOriginPwdUser" resultType="int" >
+		select 
+			id
+		from ep_user 
+		where 
+			origin_pwd = pwd
+	</select>
+	
+	<update id="updateOriginPwdById">
+	update ep_user set 
+				pwd = #{md5Pwd},
+				mima = #{pwd},
+				origin_pwd = #{md5Pwd} 
+				where id = #{id}
+	</update>
+	
+	<update id="updatePwdById">
+	update ep_user set 
+				pwd = #{md5Pwd},
+				mima = #{pwd}
+				where id = #{id}
+	</update>
+	<!-- 仅仅用来批量修改数据库里的密码  the end -->
+	
+	<update id="updateVercodeById">
+	update ep_user set 
+				ver_code = #{ver_code},
+				vercode_time = #{vercode_time}
+				where id = #{id}
+	</update>
+	
+	<update id="updateResetPwdByEmail" parameterType="com.cn.eplat.model.EpUser">
+	update ep_user set 
+				pwd = #{pwd},
+				mima = #{mima},ver_code = #{ver_code},vercode_time = #{vercode_time}
+				where email = #{email}
+	</update>
+	
+	<sql id="upd_all_fields_except_id_if">
+			<if test="code != null and code != '' ">
+				code = #{code},
+			</if>
+			<if test="name != null and name != '' ">
+				name = #{name},
+			</if>
+			<if test="english_name != null and english_name != '' ">
+				english_name = #{english_name},
+			</if>
+			<if test="pwd != null and pwd != '' ">
+				pwd = #{pwd},
+			</if>
+			<if test="mima != null and mima != '' ">
+				mima = #{mima},
+			</if>
+			<if test="em_uid != null and em_uid > 0 ">
+				em_uid = #{em_uid},
+			</if>
+			<if test="role_id != null and role_id > 0 ">
+				role_id = #{role_id}
+			</if>
+			<if test="userid != null and userid != '' ">
+				userid = #{userid},
+			</if>
+			<if test="work_no != null and work_no != '' ">
+				work_no = #{work_no},
+			</if>
+			<if test="gender != null and gender != '' ">
+				gender = #{gender},
+			</if>
+			<if test="job_title != null and job_title != '' ">
+				job_title = #{job_title},
+			</if>
+			<if test="on_position_date != null ">
+				on_position_date = #{on_position_date},
+			</if>
+			<if test="mobile_phone != null and mobile_phone != '' ">
+				mobile_phone = #{mobile_phone},
+			</if>
+			<if test="fixed_phone != null and fixed_phone != '' ">
+				fixed_phone = #{fixed_phone},
+			</if>
+			<if test="email != null and email != '' ">
+				email = #{email},
+			</if>
+			<if test="base_place != null and base_place != '' ">
+				base_place = #{base_place},
+			</if>
+			<if test="work_place != null and work_place != '' ">
+				work_place = #{work_place},
+			</if>
+			<if test="notes != null and notes != '' ">
+				notes = #{notes},
+			</if>
+			<if test="dept_name != null and dept_name != '' ">
+				dept_name = #{dept_name},
+			</if>
+			<if test="project_name != null and project_name != '' ">
+				project_name = #{project_name},
+			</if>
+			<if test="origin_pwd != null and origin_pwd != '' ">
+				origin_pwd = #{origin_pwd},
+			</if>
+			<if test="identity_no != null and identity_no != '' ">
+				identity_no = #{identity_no},
+			</if>
+			<if test="ver_code != null and ver_code != '' ">
+				ver_code = #{ver_code},
+			</if>
+			<if test="vercode_time != null ">
+				vercode_time = #{vercode_time},
+			</if>
+			<if test="max_device_num != null ">
+				max_device_num = #{max_device_num},
+			</if>
+			<if test="max_bind_times != null ">
+				max_bind_times = #{max_bind_times},
+			</if>
+			<if test="bind_times_count != null ">
+				bind_times_count = #{bind_times_count},
+			</if>
+			<if test="bind_start_time != null ">
+				bind_start_time = #{bind_start_time},
+			</if>
+			<if test="bind_limit_time != null ">
+				bind_limit_time = #{bind_limit_time},
+			</if>
+			<if test="mach_userid != null ">
+				mach_userid = #{mach_userid},
+			</if>
+			<if test="type != null and type != '' ">
+				type = #{type},
+			</if>
+			<if test="push2hw_atten != null ">
+				push2hw_atten = #{push2hw_atten},
+			</if>
+	</sql>
+	
+	<update id="updateEpUserById" parameterType="com.cn.eplat.model.EpUser" >
+		update ep_user
+		<set>
+			<include refid="upd_all_fields_except_id_if"></include>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<sql id="upd_all_fields_except_id_no_if">
+		code = #{code},
+			name = #{name},
+			english_name = #{english_name},
+			pwd = #{pwd},
+			mima = #{mima},
+			em_uid = #{em_uid},
+			role_id = #{role_id},
+			userid = #{userid},
+			work_no = #{work_no},
+			gender = #{gender},
+			job_title = #{job_title},
+			on_position_date = #{on_position_date},
+			mobile_phone = #{mobile_phone},
+			fixed_phone = #{fixed_phone},
+			email = #{email},
+			base_place = #{base_place},
+			work_place = #{work_place},
+			notes = #{notes},
+			dept_name = #{dept_name},
+			project_name = #{project_name},
+			origin_pwd = #{origin_pwd},
+			identity_no = #{identity_no},
+			ver_code = #{ver_code},
+			vercode_time = #{vercode_time},
+			max_device_num = #{max_device_num},
+			max_bind_times = #{max_bind_times},
+			bind_times_count = #{bind_times_count},
+			bind_start_time = #{bind_start_time},
+			bind_limit_time = #{bind_limit_time},
+			mach_userid = #{mach_userid},
+			type = #{type},
+			push2hw_atten = #{push2hw_atten}
+	</sql>
+	
+	<update id="updateEpUserByIdIncludingNull" parameterType="com.cn.eplat.model.EpUser" >
+		update ep_user
+		set 
+			<include refid="upd_all_fields_except_id_no_if"></include>
+		where 
+			id = #{id}
+	</update>
+	
+	<select id="testQueryEpUser" resultType="com.cn.eplat.model.EpUser" >
+		select * from ep_user
+		where name = #{user.name}
+	</select>
+	
+	<select id="queryEpUsersByKey" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select 
+			u.id id, 
+			u.code code, 
+			u.name name, 
+			u.pwd pwd, 
+			u.mima mima, 
+			u.em_uid em_uid,
+			u.role_id role_id,
+			r.name role_name
+		from ep_user u left join ep_role r
+			on u.role_id = r.id
+		where 
+			code like concat('%',#{key},'%')
+	</select>
+	
+	<sql id="all_fields">
+		id, code, name, english_name, pwd, mima, em_uid, role_id, userid, work_no, gender, job_title, on_position_date, mobile_phone, fixed_phone, email, base_place, work_place, notes, 
+			dept_name, project_name, origin_pwd, identity_no, ver_code, vercode_time, max_device_num, max_bind_times, bind_times_count, bind_start_time, bind_limit_time, 
+			mach_userid, type, push2hw_atten
+	</sql>
+	
+	<sql id="all_fields_except_id">
+		code, name, english_name, pwd, mima, em_uid, role_id, userid, work_no, gender, job_title, on_position_date,  mobile_phone, fixed_phone, email, base_place, work_place, notes, 
+			dept_name, project_name, origin_pwd, identity_no, ver_code, vercode_time, max_device_num, max_bind_times, bind_times_count, bind_start_time, bind_limit_time, 
+			mach_userid, type, push2hw_atten
+	</sql>
+	
+	<sql id="all_fields_except_id_with_sharp">
+		#{code}, #{name}, #{english_name}, #{pwd}, #{mima}, #{em_uid}, #{role_id}, #{userid}, #{work_no}, #{gender}, #{job_title}, #{on_position_date}, #{mobile_phone}, #{fixed_phone}, 
+			#{email}, #{base_place}, #{work_place}, #{notes}, #{dept_name}, #{project_name}, #{origin_pwd}, #{identity_no}, #{ver_code}, #{vercode_time}, #{max_device_num}, #{max_bind_times}, 
+			#{bind_times_count}, #{bind_start_time}, #{bind_limit_time}, #{mach_userid}, #{type}, #{push2hw_atten}
+	</sql>
+	
+	<insert id="addEpUser" parameterType="com.cn.eplat.model.EpUser" useGeneratedKeys="true" keyProperty="id" >
+		insert into ep_user(
+			<include refid="all_fields_except_id"></include>
+		)
+		value (
+			<include refid="all_fields_except_id_with_sharp"></include>
+		)
+	</insert>
+	
+	<select id="queryEpUserByMobilePhone" parameterType="com.cn.eplat.model.EpUser" resultType="int" >
+		select count(*) from ep_user
+		where mobile_phone = #{mobile_phone}
+	</select>
+	
+	<sql id="all_fields_except_id_where_and_if">
+		<if test="code != null and code != '' ">
+				and code = #{code}
+			</if>
+			<if test="name != null and name != '' ">
+				and name = #{name}
+			</if>
+			<if test="english_name != null and english_name != '' ">
+				and english_name = #{english_name}
+			</if>
+			<if test="pwd != null and pwd != '' ">
+				and pwd = #{pwd}
+			</if>
+			<if test="mima != null and mima != '' ">
+				and mima = #{mima}
+			</if>
+			<if test="em_uid != null and em_uid > 0 ">
+				and em_uid = #{em_uid}
+			</if>
+			<if test="role_id != null and role_id > 0 ">
+				and role_id = #{role_id}
+			</if>
+			<if test="userid != null and userid != '' ">
+				and userid = #{userid}
+			</if>
+			<if test="work_no != null and work_no != '' ">
+				and work_no = #{work_no}
+			</if>
+			<if test="gender != null and gender != '' ">
+				and gender = #{gender}
+			</if>
+			<if test="job_title != null and job_title != '' ">
+				and job_title = #{job_title}
+			</if>
+			<if test="on_position_date != null ">
+				and on_position_date = #{on_position_date}
+			</if>
+			<if test="mobile_phone != null and mobile_phone != '' ">
+				and mobile_phone = #{mobile_phone}
+			</if>
+			<if test="fixed_phone != null and fixed_phone != '' ">
+				and fixed_phone = #{fixed_phone}
+			</if>
+			<if test="email != null and email != '' ">
+				and email = #{email}
+			</if>
+			<if test="base_place != null and base_place != '' ">
+				and base_place = #{base_place}
+			</if>
+			<if test="work_place != null and work_place != '' ">
+				and work_place = #{work_place}
+			</if>
+			<if test="notes != null and notes != '' ">
+				and notes = #{notes}
+			</if>
+			<if test="dept_name != null and dept_name != '' ">
+				and dept_name = #{dept_name}
+			</if>
+			<if test="project_name != null and project_name != '' ">
+				and project_name = #{project_name}
+			</if>
+			<if test="origin_pwd != null and origin_pwd != '' ">
+				and origin_pwd = #{origin_pwd}
+			</if>
+			<if test="identity_no != null and identity_no != '' ">
+				and identity_no = #{identity_no}
+			</if>
+			<if test="ver_code != null and ver_code != '' ">
+				and ver_code = #{ver_code}
+			</if>
+			<if test="vercode_time != null ">
+				and vercode_time = #{vercode_time}
+			</if>
+			<if test="max_device_num != null ">
+				and max_device_num = #{max_device_num}
+			</if>
+			<if test="max_bind_times != null ">
+				and max_bind_times = #{max_bind_times}
+			</if>
+			<if test="bind_times_count != null ">
+				and bind_times_count = #{bind_times_count}
+			</if>
+			<if test="bind_start_time != null ">
+				and bind_start_time = #{bind_start_time}
+			</if>
+			<if test="bind_limit_time != null ">
+				and bind_limit_time = #{bind_limit_time}
+			</if>
+			<if test="mach_userid != null ">
+				and mach_userid = #{mach_userid}
+			</if>
+			<if test="type != null and type != '' ">
+				and type = #{type}
+			</if>
+			<if test="push2hw_atten != null ">
+				and push2hw_atten = #{push2hw_atten}
+			</if>
+	</sql>
+	
+	<select id="queryEpUserByCriteria" parameterType="com.cn.eplat.model.EpUser" resultType="com.cn.eplat.model.EpUser" >
+		select <include refid="all_fields"></include>
+		from ep_user
+		where 1=1 
+			<include refid="all_fields_except_id_where_and_if"></include>
+			<!-- and id = #{id} -->
+	</select>
+	
+	<select id="queryEpUserById" parameterType="int" resultType="com.cn.eplat.model.EpUser"  >
+		select <include refid="all_fields"></include>
+		from ep_user
+		where id = #{id}
+	</select>
+	
+	<select id="queryWorkNumById" parameterType="int" resultType="string"  >
+		select work_no from ep_user where id = #{id}
+	</select>
+	
+	<select id="queryOneEpUserByNameAndSpecialCriterion" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		SELECT <include refid="all_fields"></include>
+		FROM ep_user
+		WHERE NAME = #{name} 
+			AND pwd IS NOT NULL 
+			AND CODE IS NULL
+	</select>
+	
+	<select id="fuzzyQueryEpUserAndEmUserByName" parameterType="string" resultType="map" >
+		select 
+			epu.id ep_uid,
+			epu.name name,
+			epu.work_no work_no,
+			epu.email email,
+			epu.mobile_phone,
+			emu.id em_uid,
+			emu.username em_username,
+			emu.nickname
+		from 
+			ep_user epu left join em_user emu
+				on epu.em_uid = emu.id
+		where 
+			work_no is not null
+			and name like concat('%', #{name_key}, '%')
+	</select>
+	
+	<select id="queryTestAccountEpUserWithMaxWorkNo" resultType="com.cn.eplat.model.EpUser" >
+		select <include refid="all_fields"></include>
+		from ep_user
+		where id in (
+			select max(id) 
+			from ep_user
+			where name like '%测试账号%'
+		)
+	</select>
+	
+	<sql id="all_fields_except_id_with_sharp_item">
+		#{item.code}, #{item.name}, #{item.english_name}, #{item.pwd}, #{item.mima}, #{item.em_uid}, #{item.role_id}, #{item.userid}, #{item.work_no}, #{item.gender}, #{item.job_title}, 
+				#{item.on_position_date}, #{item.mobile_phone}, #{item.fixed_phone}, 
+				#{item.email}, #{item.base_place}, #{item.work_place}, #{item.notes}, #{item.dept_name}, #{item.project_name}, #{item.origin_pwd}, #{item.identity_no}, 
+				#{item.ver_code}, #{item.vercode_time}, 
+				#{item.max_device_num}, #{item.max_bind_times}, 
+				#{item.bind_times_count}, #{item.bind_start_time}, #{item.bind_limit_time}, #{item.mach_userid}, #{item.type}, #{item.push2hw_atten}
+	</sql>
+	
+	<insert id="batchInsertEpUsers" parameterType="com.cn.eplat.model.EpUser" >
+		insert into ep_user (
+			<include refid="all_fields_except_id"></include>
+		)
+		values 
+		<foreach collection="list" item="item" index="index" separator="," >
+			(
+				<include refid="all_fields_except_id_with_sharp_item"></include>
+			)
+		</foreach>
+	</insert>
+	
+	<sql id="upd_all_fields_except_id_with_item_if">
+		<if test="item.code != null and item.code != '' ">
+					code = #{item.code},
+				</if>
+				<if test="item.name != null and item.name != '' ">
+					name = #{item.name},
+				</if>
+				<if test="item.english_name != null and item.english_name != '' ">
+					english_name = #{item.english_name},
+				</if>
+				<if test="item.pwd != null and item.pwd != '' ">
+					pwd = #{item.pwd},
+				</if>
+				<if test="item.mima != null and item.mima != '' ">
+					mima = #{item.mima},
+				</if>
+				<if test="item.em_uid != null and item.em_uid > 0 ">
+					em_uid = #{item.em_uid},
+				</if>
+				<if test="item.role_id != null and item.role_id > 0 ">
+					role_id = #{item.role_id}
+				</if>
+				<if test="item.userid != null and item.userid != '' ">
+					userid = #{item.userid},
+				</if>
+				<if test="item.work_no != null and item.work_no != '' ">
+					work_no = #{item.work_no},
+				</if>
+				<if test="item.gender != null and item.gender != '' ">
+					gender = #{item.gender},
+				</if>
+				<if test="item.job_title != null and item.job_title != '' ">
+					job_title = #{item.job_title},
+				</if>
+				<if test="item.on_position_date != null ">
+					on_position_date = #{item.on_position_date},
+				</if>
+				<if test="item.mobile_phone != null and item.mobile_phone != '' ">
+					mobile_phone = #{item.mobile_phone},
+				</if>
+				<if test="item.fixed_phone != null and item.fixed_phone != '' ">
+					fixed_phone = #{item.fixed_phone},
+				</if>
+				<if test="item.email != null and item.email != '' ">
+					email = #{item.email},
+				</if>
+				<if test="item.base_place != null and item.base_place != '' ">
+					base_place = #{item.base_place},
+				</if>
+				<if test="item.work_place != null and item.work_place != '' ">
+					work_place = #{item.work_place},
+				</if>
+				<if test="item.notes != null and item.notes != '' ">
+					notes = #{item.notes},
+				</if>
+				<if test="item.dept_name != null and item.dept_name != '' ">
+					dept_name = #{item.dept_name},
+				</if>
+				<if test="item.project_name != null and item.project_name != '' ">
+					project_name = #{item.project_name},
+				</if>
+				<if test="item.origin_pwd != null and item.origin_pwd != '' ">
+					origin_pwd = #{item.origin_pwd},
+				</if>
+				<if test="item.identity_no != null and item.identity_no != '' ">
+					identity_no = #{item.identity_no},
+				</if>
+				<if test="item.ver_code != null and item.ver_code != '' ">
+					ver_code = #{item.ver_code},
+				</if>
+				<if test="item.vercode_time != null ">
+					vercode_time = #{item.vercode_time},
+				</if>
+				<if test="item.max_device_num != null ">
+					max_device_num = #{item.max_device_num},
+				</if>
+				<if test="item.max_bind_times != null ">
+					max_bind_times = #{item.max_bind_times},
+				</if>
+				<if test="item.bind_times_count != null ">
+					bind_times_count = #{item.bind_times_count},
+				</if>
+				<if test="item.bind_start_time != null ">
+					bind_start_time = #{item.bind_start_time},
+				</if>
+				<if test="item.bind_limit_time != null ">
+					bind_limit_time = #{item.bind_limit_time},
+				</if>
+				<if test="item.mach_userid != null ">
+					mach_userid = #{item.mach_userid},
+				</if>
+				<if test="item.type != null and type != '' ">
+					type = #{item.type},
+				</if>
+				<if test="item.push2hw_atten != null ">
+					type = #{item.push2hw_atten},
+				</if>
+	</sql>
+	
+	<update id="batchUpdateEpUsers" parameterType="map" >
+		<foreach collection="data_map" item="item" index="index" open="" close="" separator=";" >
+			update ep_user
+			<set>
+				<include refid="upd_all_fields_except_id_with_item_if"></include>
+			</set>
+			where id = ${item.id}
+		</foreach>
+	</update>
+	
+	<select id="fuzzyQueryEpUserByName" parameterType="string" resultType="com.cn.eplat.model.EpUser" >
+		select <include refid="all_fields"></include>
+		from ep_user
+		where name like concat('%', #{name_key}, '%')
+	</select>
+	
+	<select id="queryEpUserByNamesGroup" resultType="com.cn.eplat.model.EpUser" >
+		select <include refid="all_fields"></include>
+		from ep_user
+		where name in 
+				<foreach collection="list" item="item" index="index" open="(" separator="," close=")" >
+					'${item}'
+				</foreach>
+	</select>
+	
+	<select id="queryEpUserByNamesGroupAndSpecialConditions" resultType="com.cn.eplat.model.EpUser" >
+		select <include refid="all_fields"></include>
+		from ep_user
+		where 
+			work_no is not null
+			and (
+				(max_device_num is null or max_device_num &lt; 2)
+				or (max_bind_times is null or max_bind_times &lt; 6)
+			)
+			and name in 
+				<foreach collection="list" item="item" index="index" open="(" separator="," close=")" >
+					'${item}'
+				</foreach>
+	</select>
+	
+	<update id="batchUpdateEpUsersUnderSomeConditions">
+		<foreach collection="data_map" item="item" index="index" open="" close="" separator=";" >
+			update ep_user
+			<set>
+				<include refid="upd_all_fields_except_id_with_item_if"></include>
+			</set>
+			where id = ${item.id}
+				and mach_userid is null
+		</foreach>
+	</update>
+	
+<!-- 
+	<resultMap id="BaseResultMap" type="com.cn.zpxt.model.User">
+		<id column="id" property="userId" jdbcType="INTEGER" />
+		<result column="name" property="userName" jdbcType="VARCHAR" />
+		<result column="passwd" property="password" jdbcType="VARCHAR" />
+		<result column="telephone" property="telephone" jdbcType="VARCHAR" />
+		<result column="elead_email" property="eleadEmail" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<select id="getMatchCount" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM user_t
+		WHERE name = #{userName}
+		and passwd=#{password}
+	</select>
+
+	<select id="queryUserByNameAndPassword" resultMap="BaseResultMap">
+		SELECT u.id, u.name, u.telephone, u.elead_email, u.creator,
+		u.create_time,r.name 'rname',r.id 'roleId'
+		FROM user_t u,role_t r
+		WHERE u.roleId = r.id
+		and u.name = #{userName}
+		and u.passwd=#{password}
+	</select>
+
+	<select id="getAllUser" resultMap="BaseResultMap">
+		SELECT u.id 'userId', u.name 'userName', u.telephone 'telephone', u.elead_email 'eleadEmail', u.creator 'creator',
+		u.create_time 'createTime',r.name 'rname',r.id 'roleId'
+		FROM user_t u,role_t r
+		WHERE u.roleId = r.id
+		order by u.create_time desc
+	</select>
+ -->
+
+	<!-- 注：这里useGeneratedKeys="true" keyProperty="userId" 是用来让MyBatis插入一行数据后，自动将对应表中的自增字段的值赋给对应的实体类对象的userId属性上 -->
+<!-- 
+	<insert id="addUser" parameterType="com.cn.zpxt.model.User"
+		useGeneratedKeys="true" keyProperty="userId">
+		insert into user_t(name, passwd, telephone, elead_email, creator,
+		create_time, mima, roleId)
+		values (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+		#{telephone,jdbcType=VARCHAR},
+		#{eleadEmail,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+		#{mima,jdbcType=VARCHAR} , #{roleId})
+	</insert>
+
+	<update id="updateUser" parameterType="com.cn.zpxt.model.User">
+		update user_t
+		set telephone = #{telephone}, elead_email = #{eleadEmail}, roleId = #{roleId}
+		where id = #{userId}
+	</update>
+
+	<select id="queryUserById" resultMap="BaseResultMap"
+		parameterType="int">
+		select 
+			u.id userId,
+			u.NAME userName,
+			u.TELEPHONE telephone,
+			u.ELEAD_EMAIL eleadEmail,
+			u.CREATOR creator,
+			u.CREATE_TIME createTime,
+			u.roleId,
+			r.NAME rname
+		from user_t u, role_t r
+		where u.roleId=r.id and u.id = #{userId}
+	</select>
+
+	<update id="updatePasswordById" parameterType="com.cn.zpxt.model.User">
+		update user_t
+		set passwd = #{password}, mima = #{mima}
+		where id = #{userId}
+	</update>
+	
+	<select id="queryUsersByRoleName" parameterType="string" resultType="com.cn.zpxt.model.User" >
+		select 
+			u.id userId,
+			u.NAME userName,
+			u.TELEPHONE telephone,
+			u.ELEAD_EMAIL eleadEmail,
+			u.CREATOR creator,
+			u.CREATE_TIME createTime,
+			u.roleId,
+			r.NAME rname
+		from user_t u, role_t r
+		where 
+			u.roleId=r.id
+			<if test="roleName != null and roleName != '' ">
+				and r.name=#{roleName}
+			</if>
+	</select>
+ -->
+
+</mapper>

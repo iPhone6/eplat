@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IPushToHwDao">
+	
+	
+	<sql id="all_fields">
+		id, ep_uid, name, id_no, dayof_date, dayof_week, on_duty_time, off_duty_time
+	</sql>
+	
+	<sql id="all_fields_except_id">
+		ep_uid, name, id_no, dayof_date, dayof_week, on_duty_time, off_duty_time
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp_item">
+		#{item.ep_uid}, #{item.name}, #{item.id_no}, #{item.dayof_date}, #{item.dayof_week}, #{item.on_duty_time}, #{item.off_duty_time}
+	</sql>
+	
+	<insert id="batchInsertPushToHws" parameterType="com.cn.eplat.model.PushToHw" >
+		insert into push_to_hw (
+			<include refid="all_fields_except_id"></include>
+		) values 
+		<foreach collection="list" item="item" open="" separator="," close="" >
+			(
+				<include refid="all_fields_except_id_sharp_item"></include>
+			)
+		</foreach>
+	</insert>
+	
+	<select id="getPushToHwsByDate" resultType="com.cn.eplat.model.PushToHw">
+			select *  from push_to_hw where  1= 1 
+			<if test="startdate != null  and enddate != null">
+				and dayof_date between #{startdate} and #{enddate}
+			</if>
+	</select>
+	
+	<select id="getPushToHwsByIds" resultType="com.cn.eplat.model.PushToHw">
+		select *  from push_to_hw where id in 
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")" >
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="findPushToHwsByName" parameterType="string" resultType="com.cn.eplat.model.PushToHw" >
+		select * from push_to_hw
+		where name = #{name}
+	</select>
+	
+	<select id="getPushToHwsByIdSeq" resultType="com.cn.eplat.model.PushToHw" >
+		select * from push_to_hw
+		where 1 = 1
+			<if test="idSeqStart != null and idSeqStart > 0 ">
+				and id &gt;= #{idSeqStart}
+			</if>
+			<if test="idSeqEnd != null and idSeqEnd > 0 ">
+				and id &lt;= #{idSeqEnd}
+			</if>
+	</select>
+	
+	
+</mapper>

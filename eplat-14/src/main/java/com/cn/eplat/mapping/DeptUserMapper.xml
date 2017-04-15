@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IDeptUserDao">
+
+	<select id="queryDeptUserByDeptIdAndUid" parameterType="com.cn.eplat.model.DeptUser" resultType="com.cn.eplat.model.DeptUser" >
+		select id, dept_id, ep_uid, is_manager
+		from dept_user
+		where dept_id = #{dept_id} 
+			and ep_uid = #{ep_uid}
+	</select>
+	
+	<insert id="addDeptUserInfo" parameterType="com.cn.eplat.model.DeptUser" useGeneratedKeys="true" keyProperty="id" >
+		insert into dept_user(dept_id, ep_uid, is_manager)
+		value(
+			#{dept_id},
+			#{ep_uid},
+			#{is_manager}
+		)
+	</insert>
+
+</mapper>

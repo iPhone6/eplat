@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IRestCalendarDao">
+
+	<insert id="insertRestCalendar"  useGeneratedKeys="true" >
+			insert into rest_calendar
+			(rest_time,type)
+			values
+		<foreach collection="list" item="item" index="index"  separator=","  >
+			(#{item.rest_time},#{item.type})
+		</foreach> 
+	</insert>
+	
+	<select id="getDatesBetweenStartAndEnd" resultType="map">
+	   select rest_time,type from rest_calendar where 
+		rest_time between #{startdate} and #{enddate} 
+	</select>
+	
+	<select id="getDatesBetweenStartAndEndByType" resultType="java.util.Date">
+	   select rest_time from rest_calendar where 
+		rest_time between #{startdate} and #{enddate} and type LIKE concat (concat('%',#{type}),'%')
+	</select>
+	
+	<delete id="deleteRecordsByDates">
+		delete from rest_calendar where rest_time in
+		<foreach collection="list" item="item" index="index"  open="("  separator=","  close=")">
+		#{item}	
+		</foreach>
+	</delete>
+</mapper>

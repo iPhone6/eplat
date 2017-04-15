@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IMachineInfoDao">
+
+	<insert id="insertMachineInfos"  useGeneratedKeys="true" >
+			insert into machine_info
+			(dict_name,dict_value,status)
+			values
+		<foreach collection="list" item="item" index="index"  separator=","  >
+			(#{item.dict_name},#{item.dict_value},#{item.status}})
+		</foreach> 
+	</insert>
+	
+	<select id="getAllMachineInfos" resultType="map">
+	   select dict_name,dict_value,status,creator,create_time,comment from machine_info 
+	</select>
+	
+	<select id="getNameBySN" resultType="string">
+	   select dict_value from machine_info where dict_name = #{sn}
+	</select>
+	
+	<update id="updateMachineInfoBySN">
+		update machine_info set status = #{status}  where dict_name = #{sn}
+	</update>
+</mapper>

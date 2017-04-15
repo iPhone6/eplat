@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IMachMachinesDao">
+	
+	
+	<!-- 与(Access数据库)相关的操作 -->
+	
+	<sql id="all_fields_access">
+		ID as MachinesId, 
+		MachineAlias, 
+		ConnectType, 
+		IP, 
+		SerialPort, 
+		Port,
+		Baudrate,
+		MachineNumber,
+		IsHost,
+		Enabled,
+		CommPassword,
+		UILanguage,
+		DateFormat,
+		InOutRecordWarn,
+		Idle,
+		Voice,
+		managercount,
+		usercount,
+		fingercount,
+		SecretCount,
+		FirmwareVersion,
+		ProductType,
+		LockControl,
+		Purpose,
+		ProduceKind,
+		sn,
+		PhotoStamp,
+		IsIfChangeConfigServer2,
+		pushver,
+		IsAndroid
+	</sql>
+	
+	<!-- REF: http://www.programgo.com/article/78913488056/ -->
+	<!-- 1.在运行iBatis的Update时，如果Access表的主键是自增型主键时，即“自动编号 + 长整型 + 递增”型主键，对应的JavaBean的属性值只能是int型，不能设置为long型，
+		否则，会报告“java.sql.SQLException: [Microsoft][ODBC Microsoft Access Driver]可选的功能未实现”  -->
+	<select id="queryAllMachMachines" resultType="com.cn.eplat.model.MachMachines" >
+		select <include refid="all_fields_access"></include>
+		from machines
+	</select>
+	
+	<select id="queryAllMachineSns" resultType="string" >
+		select distinct(sn)
+		from Machines
+	</select>
+	
+	
+	
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~ 分割线 ~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	
+	<!-- 与(MySQL数据库)相关的操作 -->
+	
+</mapper>

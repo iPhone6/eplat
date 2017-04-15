@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IPushLogDao">
+
+	<insert id="insert2PushLog"  useGeneratedKeys="true"  parameterType="com.cn.eplat.model.PushLog">
+			insert into push_log
+			(work_no,name,result,time,pth_id)
+			values
+		<foreach collection="list" item="item" index="index"  separator=","  >
+			(#{item.work_no},#{item.name},#{item.result},#{item.time},#{item.pth_id})
+		</foreach> 
+	</insert>
+	
+	<select id="getAllPushLogsBetweenStartAndEnd" resultType="map">
+	   select work_no,name,result,time from push_log where 
+		time between #{startDate} and #{endDate} order by time desc
+	</select>
+	
+	<select id="getAllFailPthIds" resultType="long">
+	  select pth_id  from push_log where result = false
+	</select>
+	
+	<select id="getLatestPushLogTime" resultType="date" >
+		SELECT MAX(time) FROM push_log WHERE time IS NOT NULL
+	</select>
+	
+	<delete id="deletePushLogsByPthids">
+		delete from push_log where pth_id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")" >
+			#{item}
+		</foreach>
+	</delete>
+</mapper>

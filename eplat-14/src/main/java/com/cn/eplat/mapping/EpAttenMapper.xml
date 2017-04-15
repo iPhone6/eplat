@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IEpAttenDao">
+	
+	<sql id="all_fields">
+		id, ep_uid, type, latitude, longtitude, gps_distance, gps_addr, wifi_mac, wifi_name, is_valid, time, count, platform, mach_sn, fetch_time
+	</sql>
+	
+	<sql id="all_fields_except_id">
+		ep_uid, type, latitude, longtitude, gps_distance, gps_addr, wifi_mac, wifi_name, is_valid, time, count, platform, mach_sn, fetch_time
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp">
+		#{ep_uid},
+		#{type},
+		#{latitude},
+		#{longtitude},
+		#{gps_distance},
+		#{gps_addr},
+		#{wifi_mac},
+		#{wifi_name},
+		#{is_valid},
+		now(),
+		#{count},
+		#{platform},
+		#{mach_sn},
+		#{fetch_time}
+	</sql>
+	
+	<insert id="insertEpAtten" parameterType="com.cn.eplat.model.EpAtten"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into ep_attendance
+		(
+			<include refid="all_fields_except_id"></include>
+		)
+		value(
+			<include refid="all_fields_except_id_sharp"></include>
+		)
+	</insert>
+
+	<!-- 这里需要再次注意XML文档中必须要转义的字符，如大于号(>)、小于号(<)、且(&)等，要用相应的转义字符代替！ -->
+	<!-- 参考：http://jaenson.iteye.com/blog/945469 -->
+	<select id="queryLastPunchCardCountToday" parameterType="com.cn.eplat.model.EpAtten"
+		resultType="int">
+		select max(count)
+		from ep_attendance
+		where
+		ep_uid = #{ep_uid}
+		and time &gt;= STR_TO_DATE( DATE_FORMAT(NOW(), '%Y-%m-%d'), '%Y-%m-%d
+		%H:%i:%s')
+		and time &lt; DATE_ADD( STR_TO_DATE( DATE_FORMAT(NOW(), '%Y-%m-%d'),
+		'%Y-%m-%d %H:%i:%s'), INTERVAL 1 DAY)
+	</select>
+	
+	<select id="queryEpAttenByUidAndDayRange" resultType="com.cn.eplat.model.EpAtten" >
+		select <include refid="all_fields"></include>
+		from ep_attendance
+		where
+		ep_uid = #{uid}
+		and time &lt;= now()
+		and datediff(now(), time) &lt; #{day_range}
+	</select>
+	
+	<select id="queryEpAttenById" resultType="com.cn.eplat.model.EpAtten" parameterType="long" >
+		select <include refid="all_fields"></include>
+		from ep_attendance
+		where id = #{id}
+	</select>
+
+	<select id="queryAllEpAttenExportDatas" resultType="com.cn.eplat.model.EpAttenExport">
+		select
+		epu.name,epa.type, epa.latitude, epa.longtitude, epa.wifi_name,
+		 epa.time, epa.platform,epu.email
+		from ep_attendance epa,ep_user epu
+		where time between #{startDate} and #{endDate} and
+		epu.email in 
+		<foreach collection="datas" item="item" index="index" open="(" separator="," close=")" >
+			#{item}
+		</foreach> 
+		 and epa.ep_uid = epu.id and is_valid = true
+	</select>
+	
+	
+	
+	<!-- 
+		SELECT * FROM ep_attendance
+		WHERE DATEDIFF(TIME, STR_TO_DATE('2016-12-08', '%Y-%m-%d') ) > 0
+			AND DATEDIFF( TIME, STR_TO_DATE('2016-12-09', '%Y-%m-%d')) <= 0
+	 -->
+	<select id="queryEpAttenByStartDateAndEndDate" resultType="com.cn.eplat.model.EpAtten" >
+		SELECT <include refid="all_fields"></include>
+		FROM ep_attendance
+		WHERE DATEDIFF( TIME, #{start_date} ) &gt;= 0
+			AND DATEDIFF( TIME, #{end_date} ) &lt;= 0
+	</select>
+	
+	<select id="queryEpAttenByEpUidAndStartDateAndEndDate" resultType="com.cn.eplat.model.EpAtten" >
+		SELECT <include refid="all_fields"></include>
+		FROM ep_attendance
+		WHERE 
+			ep_uid = #{ep_uid}
+			and DATEDIFF( TIME, #{start_date} ) &gt;= 0
+			AND DATEDIFF( TIME, #{end_date} ) &lt;= 0
+	</select>
+	
+	<select id="queryValidEpAttenByEpUidAndStartDateAndEndDate" resultType="com.cn.eplat.model.EpAtten" >
+		SELECT <include refid="all_fields"></include>
+		FROM ep_attendance
+		WHERE 
+			ep_uid = #{ep_uid}
+			and time is not null
+			and is_valid = true
+			and DATEDIFF( TIME, #{start_date} ) &gt;= 0
+			AND DATEDIFF( TIME, #{end_date} ) &lt;= 0
+	</select>
+	
+	<sql id="all_fields_except_id_with_sharp_item">
+		#{item.ep_uid},
+		#{item.type},
+		#{item.latitude},
+		#{item.longtitude},
+		#{item.gps_distance},
+		#{item.gps_addr},
+		#{item.wifi_mac},
+		#{item.wifi_name},
+		#{item.is_valid},
+		<if test="item.time != null ">
+			#{item.time},
+		</if>
+		<if test="item.time == null ">
+			now(),
+		</if>
+		#{item.count},
+		#{item.platform},
+		#{item.mach_sn},
+		#{item.fetch_time}
+	</sql>
+	
+	<insert id="batchInsertEpAttens" parameterType="com.cn.eplat.model.EpAtten" >
+		insert into ep_attendance (
+			<include refid="all_fields_except_id"></include>
+		) values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(
+				<include refid="all_fields_except_id_with_sharp_item"></include>
+			)
+		</foreach>
+	</insert>
+	
+	
+	<select id="queryFirstAndLastPunchTimeValidByDatesAndEpUidsBeforeToday" resultType="map" >
+		SELECT ep_uid, DATE_FORMAT(TIME,'%Y-%m-%d') punch_date, MIN(TIME) first_punch_time, MAX(TIME) last_punch_time
+		FROM ep_attendance
+		WHERE is_valid = TRUE
+			AND TIME IS NOT NULL
+			AND TIME &lt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+			<if test="dates != null and dates.size() > 0 ">
+				and DATE_FORMAT(TIME,'%Y-%m-%d') in (
+					<foreach collection="dates" item="item" separator="," >
+						DATE_FORMAT( #{item}, '%Y-%m-%d' )
+					</foreach>
+				)
+			</if>
+			<if test="epus != null and epus.size() > 0 ">
+				and ep_uid in (
+					<foreach collection="epus" item="item" separator="," >
+						<if test="item != null and item.id > 0 ">
+							#{item.id}
+						</if>
+					</foreach>
+				)
+			</if>
+		GROUP BY ep_uid, punch_date
+	</select>
+	
+	<select id="queryFirstAndLastPunchTimeValidByDatesAndEpUidsBeforeToday2" resultType="map" >
+		SELECT ep_uid, DATE_FORMAT(TIME,'%Y-%m-%d') punch_date, MIN(TIME) first_punch_time, MAX(TIME) last_punch_time
+		FROM ep_attendance
+		WHERE is_valid = TRUE
+			AND TIME IS NOT NULL
+			AND TIME &lt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+			<if test="dates != null and dates.size() > 0 ">
+				and DATE_FORMAT(TIME,'%Y-%m-%d') in (
+					<foreach collection="dates" item="item" separator="," >
+						#{item}
+					</foreach>
+				)
+			</if>
+			<if test="epus != null and epus.size() > 0 ">
+				and ep_uid in (
+					<foreach collection="epus" item="item" separator="," >
+						<if test="item != null and item.id > 0 ">
+							#{item.id}
+						</if>
+					</foreach>
+				)
+			</if>
+		GROUP BY ep_uid, punch_date
+	</select>
+	
+	
+	<select id="queryFirstAndLastPunchTimeValid" resultType="map" >
+		select min(time) first_punch_time, max(time) last_punch_time
+		from ep_attendance
+		where is_valid = true
+			and time &lt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+	</select>
+	
+	<select id="queryAllGPSEpAttens" resultType="com.cn.eplat.model.EpAtten" >
+		select <include refid="all_fields"></include>
+		from ep_attendance
+		where type = 'GPS'
+			and latitude is not null
+			and longtitude is not null
+	</select>
+	
+	<select id="queryAllGPSEpAttensWithNullGPSDistance" resultType="com.cn.eplat.model.EpAtten" >
+		select <include refid="all_fields"></include>
+		from ep_attendance
+		where type = 'GPS'
+			and latitude is not null
+			and longtitude is not null
+			and gps_distance is null
+	</select>
+	
+	
+	<sql id="set_all_fields_with_if">
+		<set>
+			<if test="ep_uid != null ">
+				ep_uid = #{ep_uid},
+			</if>
+			<if test="type != null and type != '' ">
+				type = #{type},
+			</if>
+			<if test="latitude != null ">
+				latitude = #{latitude},
+			</if>
+			<if test="longtitude != null ">
+				longtitude = #{longtitude},
+			</if>
+			<if test="gps_distance != null ">
+				gps_distance = #{gps_distance},
+			</if>
+			<if test="gps_addr != null and gps_addr != '' ">
+				gps_addr = #{gps_addr},
+			</if>
+			<if test="wifi_mac != null and wifi_mac != '' ">
+				wifi_mac = #{wifi_mac},
+			</if>
+			<if test="wifi_name != null and wifi_name != '' ">
+				wifi_name = #{wifi_name},
+			</if>
+			<if test="is_valid != null ">
+				is_valid = #{is_valid},
+			</if>
+			<if test="time != null ">
+				time = #{time},
+			</if>
+			<if test="count != null and count > 0 ">
+				count = #{count},
+			</if>
+			<if test="platform != null and platform != '' ">
+				platform = #{platform},
+			</if>
+			<if test="mach_sn != null and mach_sn != '' ">
+				mach_sn = #{mach_sn},
+			</if>
+			<if test="fetch_time != null ">
+				fetch_time = #{fetch_time},
+			</if>
+		</set>
+	</sql>
+	
+	<!-- ep_uid, type, latitude, longtitude, gps_distance, gps_addr, wifi_mac, wifi_name, is_valid, time, count, platform, mach_sn, fetch_time -->
+	<update id="updateEpAttenById" parameterType="com.cn.eplat.model.EpAtten" >
+		update ep_attendance
+		<include refid="set_all_fields_with_if"></include>
+		where id = #{id}
+	</update>
+	
+	
+	
+</mapper>

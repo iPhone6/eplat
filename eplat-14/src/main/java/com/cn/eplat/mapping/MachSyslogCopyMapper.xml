@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IMachSyslogCopyDao">
+	
+	
+	<!-- 与打卡机系统日志表(Access)相关的操作 -->
+	
+	<sql id="all_fields_orign">
+		id as syslog_id, 
+		operator, 
+		logTime as log_time, 
+		MachineAlias as machine_alias, 
+		LogTag as log_tag, 
+		logdescr as log_descr
+	</sql>
+	
+	<!-- REF: http://www.programgo.com/article/78913488056/ -->
+	<!-- 1.在运行iBatis的Update时，如果Access表的主键是自增型主键时，即“自动编号 + 长整型 + 递增”型主键，对应的JavaBean的属性值只能是int型，不能设置为long型，
+		否则，会报告“java.sql.SQLException: [Microsoft][ODBC Microsoft Access Driver]可选的功能未实现”  -->
+	<select id="queryMachSyslogCopyGtGivenId" parameterType="int" resultType="com.cn.eplat.model.MachSyslogCopy" >
+		select <include refid="all_fields_orign"></include>
+		from systemlog
+		where id &gt; #{id}
+	</select>
+	
+	<select id="queryMachSyslogCopyAfterGivenTime" parameterType="date" resultType="com.cn.eplat.model.MachSyslogCopy" >
+		select <include refid="all_fields_orign"></include>
+		from systemlog
+		where logtime > #{time}
+	</select>
+	
+	<select id="queryMachSyslogCopyByGivenTimeRange" resultType="com.cn.eplat.model.MachSyslogCopy" >
+		select <include refid="all_fields_orign"></include>
+		from systemlog
+		where 
+			1 = 1 
+			<if test="start != null ">
+				and logtime &gt; #{start}
+			</if>
+			<if test="end != null ">
+				and logtime &lt;= #{end}
+			</if>
+	</select>
+	
+	<select id="queryAllMachSyslogCopys" resultType="com.cn.eplat.model.MachSyslogCopy" >
+		select <include refid="all_fields_orign"></include>
+		from systemlog
+	</select>
+	
+	
+	
+	
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~ 分割线 ~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	
+	<!-- 与打卡机系统日志拷贝表(MySQL)相关的操作 -->
+	<sql id="all_fields">
+		id, syslog_id, operator, log_time, machine_alias, log_tag, log_descr, status, proc_time, proc_result
+	</sql>
+	
+	<sql id="all_fields_except_id">
+		syslog_id, operator, log_time, machine_alias, log_tag, log_descr, status, proc_time, proc_result
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp_item">
+		#{item.syslog_id}, 
+		#{item.operator}, 
+		#{item.log_time}, 
+		#{item.machine_alias}, 
+		#{item.log_tag}, 
+		#{item.log_descr}, 
+		#{item.status}, 
+		#{item.proc_time}, 
+		#{item.proc_result}
+	</sql>
+	
+	<select id="queryMachSyslogCopyWithMaxSyslogId" resultType="com.cn.eplat.model.MachSyslogCopy" >
+		select <include refid="all_fields"></include>
+		from mach_syslog_copy
+		where id in (
+			select id 
+			from mach_syslog_copy
+			where syslog_id = (
+				select max(syslog_id) 
+				from mach_syslog_copy
+			)
+		)
+	</select>
+	
+	<select id="queryMaxSyslogId" resultType="long" >
+		select max(syslog_id)
+		from mach_syslog_copy
+	</select>
+	
+	<select id="queryLastestLogTime" resultType="date" >
+		select max(log_time)
+		from mach_syslog_copy
+		where 
+			log_time is not null
+			and (
+				proc_result not like '%有误%'
+				and proc_result not like '%为空%'
+			)
+	</select>
+	
+	<insert id="batchInsertMachSyslogCopys" parameterType="com.cn.eplat.model.MachSyslogCopy" >
+		insert into mach_syslog_copy (
+			<include refid="all_fields_except_id"></include>
+		) values 
+		<foreach collection="list" item="item" index="index" open="" separator="," close="" >
+			(
+				<include refid="all_fields_except_id_sharp_item"></include>
+			)
+		</foreach>
+	</insert>
+	
+	<select id="queryProcessedSyslogsWithNullProcResult" resultType="com.cn.eplat.model.MachSyslogCopy" >
+		select <include refid="all_fields"></include>
+		from mach_syslog_copy
+		where 
+			status = '已处理'
+			and proc_result is null
+	</select>
+	
+	<sql id="update_all_fields_except_id_sharp_item_if">
+		<if test="item.syslog_id != null ">
+			syslog_id = #{item.syslog_id},
+		</if>
+		<if test="item.operator != null and item.operator != '' ">
+			operator = #{item.operator},
+		</if>
+		<if test="item.log_time != null ">
+			log_time = #{item.log_time},
+		</if>
+		<if test="item.machine_alias != null and item.machine_alias != '' ">
+			machine_alias = #{item.machine_alias},
+		</if>
+		<if test="item.log_tag != null ">
+			log_tag = #{item.log_tag},
+		</if>
+		<if test="item.log_descr != null and item.log_descr != '' ">
+			log_descr = #{item.log_descr},
+		</if>
+		<if test="item.status != null and item.status != '' ">
+			status = #{item.status},
+		</if>
+		<if test="item.proc_time != null ">
+			proc_time = #{item.proc_time},
+		</if>
+		<if test="item.proc_result != null and item.proc_result != '' ">
+			proc_result = #{item.proc_result},
+		</if>
+	</sql>
+	
+	<update id="batchUpdateMachSyslogCopyById" parameterType="com.cn.eplat.model.MachSyslogCopy" >
+		<foreach collection="list" item="item" index="index" separator=";" >
+			<if test="item.id != null ">
+				update mach_syslog_copy
+				<set>
+					<include refid="update_all_fields_except_id_sharp_item_if"></include>
+				</set>
+				where id = #{item.id}
+			</if>
+		</foreach>
+	</update>
+	
+	<update id="batchUpdateMachSyslogCopyProcResultById" >
+		<foreach collection="upd_logs" item="item" index="index" separator=";" >
+			<if test="item.id != null ">
+				update mach_syslog_copy
+				set proc_result = #{proc_result}
+				where id = #{item.id}
+			</if>
+		</foreach>
+	</update>
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,13 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+body{ margin:0; padding:0;}
+.Header{ height:100px; background:red;}
+.Left{ float:left; width:200px; height:300px; background:yellow;}
+.Right{ float:right; width:600px; height:300px; background:green;}
+.Center { margin:0 152px; height:778px; }
+.Content{ min-width:700px;_width:expression((document.documentElement.clientWidth||document.body.clientWidth)>700?"700px":"");}
+table{border-collapse:collapse;border-spacing:0;border-left:1px solid #888;border-top:1px solid #888;background:#efefef;}
+th,td{border-right:1px solid #888;border-bottom:1px solid #888;padding:5px 15px;}
+th{font-weight:bold;background:#ccc;}

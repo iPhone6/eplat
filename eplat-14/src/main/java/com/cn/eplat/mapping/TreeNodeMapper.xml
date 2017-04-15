@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.ITreeNodeDao">
+
+	<select id="getreeNode" parameterType="int" resultType="com.test.tree.TreeNode" >
+		select CID, CNAME, PID
+		from tb_tree
+		where cid = #{cid}
+	</select>
+	
+	<select id="queryTreeNode" parameterType="int" resultType="com.test.tree.TreeNode" >
+		select CID, CNAME, PID
+		from tb_tree
+		where pid = #{cid}
+	</select>
+	
+	<select id="queryAllTreeNodes" resultType="com.test.tree.TreeNode" >
+		select cid, cname, pid
+		from tb_tree
+	</select>
+	
+</mapper>

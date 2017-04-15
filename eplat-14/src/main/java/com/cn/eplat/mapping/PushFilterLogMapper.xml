@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IPushFilterLogDao">
+	
+	<select id="queryFilteredDates" resultType="date" >
+		select distinct(dayof_date)
+		from push_filter_log
+		where dayof_date is not null
+	</select>
+	
+	<sql id="all_fields">
+		id, dayof_date, ep_uid, filter_time, status, `describe`
+	</sql>
+	
+	<sql id="all_fields_except_id">
+		dayof_date, ep_uid, filter_time, status, `describe`
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp">
+		#{dayof_date}, #{ep_uid}, #{filter_time}, #{status}, #{describe}
+	</sql>
+	
+	<sql id="all_fields_except_id_sharp_item">
+		#{item.dayof_date}, #{item.ep_uid}, #{item.filter_time}, #{item.status}, #{item.describe}
+	</sql>
+	
+	<insert id="batchInsertPushFilterLogs" parameterType="com.cn.eplat.model.PushFilterLog" >
+		insert into push_filter_log (
+			<include refid="all_fields_except_id"></include>
+		) values
+		<foreach collection="list" item="item" open="" separator="," close="" >
+			(<include refid="all_fields_except_id_sharp_item"></include>)
+		</foreach>
+	</insert>
+	
+	<select id="queryEarliestPushFilterLogTime" resultType="date" >
+		SELECT MIN(filter_time)
+		FROM push_filter_log
+		WHERE filter_time IS NOT NULL
+	</select>
+	
+</mapper>

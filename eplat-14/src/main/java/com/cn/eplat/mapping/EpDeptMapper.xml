@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IEpDeptDao">
+
+	<insert id="addEpDept" parameterType="com.cn.eplat.model.EpDept" useGeneratedKeys="true" keyProperty="id" >
+		insert into ep_dept(name, level, superior_id, `order`)
+		value (
+			#{name}, #{level}, #{superior_id}, #{order}
+		)
+	</insert>
+	
+	<select id="queryEpDeptByCriteria" parameterType="com.cn.eplat.model.EpDept" resultType="com.cn.eplat.model.EpDept" >
+		select id, name, level, superior_id, `order`
+		from ep_dept
+		where 1=1
+			<if test="id > 0 ">
+				and id = #{id}
+			</if>
+			<if test="name != null and name != '' ">
+				and name = #{name}
+			</if>
+			<if test="level !=null and level > 0 ">
+				and level = #{level}
+			</if>
+			<if test="superior_id !=null and superior_id >= 0 ">
+				and superior_id = #{superior_id}
+			</if>
+			<if test="order !=null and order > 0 ">
+				and `order` = #{order}
+			</if>
+	</select>
+
+</mapper>

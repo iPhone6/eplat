@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IEpDataDao">
+
+	<select id="queryEpDataByAppidAndRoleId" resultType="com.cn.eplat.model.EpData" >
+		select 
+			d.id,
+			d.app_id,
+			d.role_id,
+			d.file_id,
+			d.file_path
+		from ep_data d left join ep_app a
+			on d.app_id = a.id
+		where 
+			a.appid = #{appid}
+			and d.role_id = #{role_id}
+	</select>
+
+<!-- 
+	<resultMap id="BaseResultMap" type="com.cn.zpxt.model.User">
+		<id column="id" property="userId" jdbcType="INTEGER" />
+		<result column="name" property="userName" jdbcType="VARCHAR" />
+		<result column="passwd" property="password" jdbcType="VARCHAR" />
+		<result column="telephone" property="telephone" jdbcType="VARCHAR" />
+		<result column="elead_email" property="eleadEmail" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<select id="getMatchCount" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM user_t
+		WHERE name = #{userName}
+		and passwd=#{password}
+	</select>
+
+	<select id="queryUserByNameAndPassword" resultMap="BaseResultMap">
+		SELECT u.id, u.name, u.telephone, u.elead_email, u.creator,
+		u.create_time,r.name 'rname',r.id 'roleId'
+		FROM user_t u,role_t r
+		WHERE u.roleId = r.id
+		and u.name = #{userName}
+		and u.passwd=#{password}
+	</select>
+
+	<select id="getAllUser" resultMap="BaseResultMap">
+		SELECT u.id 'userId', u.name 'userName', u.telephone 'telephone', u.elead_email 'eleadEmail', u.creator 'creator',
+		u.create_time 'createTime',r.name 'rname',r.id 'roleId'
+		FROM user_t u,role_t r
+		WHERE u.roleId = r.id
+		order by u.create_time desc
+	</select>
+ -->
+
+	<!-- 注：这里useGeneratedKeys="true" keyProperty="userId" 是用来让MyBatis插入一行数据后，自动将对应表中的自增字段的值赋给对应的实体类对象的userId属性上 -->
+<!-- 
+	<insert id="addUser" parameterType="com.cn.zpxt.model.User"
+		useGeneratedKeys="true" keyProperty="userId">
+		insert into user_t(name, passwd, telephone, elead_email, creator,
+		create_time, mima, roleId)
+		values (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+		#{telephone,jdbcType=VARCHAR},
+		#{eleadEmail,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+		#{mima,jdbcType=VARCHAR} , #{roleId})
+	</insert>
+
+	<update id="updateUser" parameterType="com.cn.zpxt.model.User">
+		update user_t
+		set telephone = #{telephone}, elead_email = #{eleadEmail}, roleId = #{roleId}
+		where id = #{userId}
+	</update>
+
+	<select id="queryUserById" resultMap="BaseResultMap"
+		parameterType="int">
+		select 
+			u.id userId,
+			u.NAME userName,
+			u.TELEPHONE telephone,
+			u.ELEAD_EMAIL eleadEmail,
+			u.CREATOR creator,
+			u.CREATE_TIME createTime,
+			u.roleId,
+			r.NAME rname
+		from user_t u, role_t r
+		where u.roleId=r.id and u.id = #{userId}
+	</select>
+
+	<update id="updatePasswordById" parameterType="com.cn.zpxt.model.User">
+		update user_t
+		set passwd = #{password}, mima = #{mima}
+		where id = #{userId}
+	</update>
+	
+	<select id="queryUsersByRoleName" parameterType="string" resultType="com.cn.zpxt.model.User" >
+		select 
+			u.id userId,
+			u.NAME userName,
+			u.TELEPHONE telephone,
+			u.ELEAD_EMAIL eleadEmail,
+			u.CREATOR creator,
+			u.CREATE_TIME createTime,
+			u.roleId,
+			r.NAME rname
+		from user_t u, role_t r
+		where 
+			u.roleId=r.id
+			<if test="roleName != null and roleName != '' ">
+				and r.name=#{roleName}
+			</if>
+	</select>
+ -->
+
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.eplat.dao.IDeptClueDao">
+
+	<select id="queryDeptClueByDeptClueStr" parameterType="string" resultType="com.cn.eplat.model.DeptClue" >
+		select id, company_name, clue_str, dept_id_clue, level_count, last_dept_id
+		from dept_clue
+		where clue_str = #{dept_clue_str}
+	</select>
+	
+	<insert id="addDeptClue" parameterType="com.cn.eplat.model.DeptClue" useGeneratedKeys="true" keyProperty="id" >
+		insert into dept_clue(company_name, clue_str, dept_id_clue, level_count, last_dept_id)
+		value(
+			#{company_name},
+			#{clue_str},
+			#{dept_id_clue},
+			#{level_count},
+			#{last_dept_id}
+		)
+	</insert>
+
+</mapper>
